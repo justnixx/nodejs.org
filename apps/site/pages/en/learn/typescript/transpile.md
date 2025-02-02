@@ -2,11 +2,13 @@
 title: Running TypeScript code using transpilation
 layout: learn
 authors: AugustinMauroy
+# not used by website but keep it for now
+node-v: '>=22.0.0'
 ---
 
 # Running TypeScript code using transpilation
 
-Transpilation is the process of converting source code from one language to another. In the case of TypeScript, it's the process of converting TypeScript code to JavaScript code. This is necessary because browsers and Node.js can't run TypeScript code directly.
+Transpilation is the process of converting source code from one language to another. In the case of TypeScript, it's the process of converting TypeScript code to JavaScript code.
 
 ## Compiling TypeScript to JavaScript
 
@@ -116,3 +118,95 @@ Found 3 errors in the same file, starting at: example.ts:12
 ```
 
 As you can see, TypeScript is very helpful in catching bugs before they even happen. This is one of the reasons why TypeScript is so popular among developers.
+
+## Understanding tsconfig.json and Transpilation Options
+
+TypeScript's behavior and compilation settings can be customized using a `tsconfig.json` file. This configuration file is essential for larger projects and provides fine-grained control over how TypeScript code is transpiled to JavaScript.
+
+**Step 1:** Create a `tsconfig.json` file in your project root:
+
+```bash
+npx tsc --init
+```
+
+This command creates a `tsconfig.json` with default settings and helpful comments.
+
+**Step 2:** Configure the transpilation target
+
+One of the most important options in `tsconfig.json` is the `target` setting, which specifies which version of JavaScript your TypeScript code will be compiled to:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2022", // Specify ECMAScript target version
+    "module": "commonjs", // Specify module code generation
+    "strict": true // Enable all strict type-checking options
+  }
+}
+```
+
+The choice of target affects:
+
+1. **Feature Compatibility**: Lower targets ensure broader browser/runtime compatibility
+2. **Code Size**: Lower targets may generate more code to polyfill newer features
+3. **Performance**: Modern targets can use newer, more efficient JavaScript features
+
+Example of how different targets affect output:
+
+```ts
+// TypeScript input
+class Example {
+  #privateField = 42;
+
+  getField() {
+    return this.#privateField;
+  }
+}
+```
+
+When compiled with `"target": "es2022"`:
+
+```js
+'use strict';
+class Example {
+  #privateField = 42;
+  getField() {
+    return this.#privateField;
+  }
+}
+```
+
+When compiled with `"target": "es2015"`:
+
+```js
+// ... some polyfill code for private fields
+var _Example_privateField;
+class Example {
+  constructor() {
+    _Example_privateField.set(this, 42);
+  }
+  getField() {
+    return __classPrivateFieldGet(this, _Example_privateField, 'f');
+  }
+}
+_Example_privateField = new WeakMap();
+```
+
+**Other Important tsconfig Options:**
+
+- `"module"`: Specifies the module system (commonjs, es2015, esnext, etc.)
+- `"strict"`: Enables strict type checking
+- `"outDir"`: Specifies output directory for compiled files
+- `"sourceMap"`: Generates source maps for debugging
+
+After setting up your `tsconfig.json`, you can compile your project without specifying individual files:
+
+```bash
+npx tsc
+```
+
+This will compile all TypeScript files according to your tsconfig settings.
+
+### Why it's can be useful to chose the right target
+
+Choosing the right target is important for ensuring your code works across different environments. For example, if you're building a library that will be used in a wide range of environments, you might want to target an older version of JavaScript to ensure compatibility.

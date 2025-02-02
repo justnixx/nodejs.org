@@ -2,6 +2,8 @@
 title: Running TypeScript with a runner
 layout: learn
 authors: AugustinMauroy
+# not used by website but keep it for now
+node-v: '>=v20.6.0 || >=v18.19.0'
 ---
 
 # Running TypeScript with a runner
